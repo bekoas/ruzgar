@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#211f3a">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://ntfy.sh; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; manifest-src 'self'; worker-src 'self'">
-<title>Rüzgar</title>
+<title>R&#xFC;zgar</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="ikon-192.png">
 <link rel="apple-touch-icon" href="ikon-192.png">
@@ -55,22 +55,24 @@ textarea:focus{border-color:rgba(120,191,255,.6)}
 <div id="esles" class="gizli">
   <div>
     <canvas id="eslesRobot" width="64" height="68" style="width:128px;image-rendering:pixelated"></canvas>
-    <h1>Merhaba, ben Rüzgar</h1>
-    <p>Mac'teki balonda ⚙ Ayarlar → 📱 Telefon → <b>Eşleştirme QR'ı</b>'nı aç ve telefonun kamerasıyla okut.</p>
+    <h1>Merhaba, ben R&#xFC;zgar</h1>
+    <p>Mac'teki balonda &#x2699; Ayarlar &#x2192; &#x1F4F1; Telefon &#x2192; <b>E&#x15F;le&#x15F;tirme QR'&#x131;</b>'n&#x131; a&#xE7; ve telefonun kameras&#x131;yla okut.</p>
+    <button id="qrDugme" class="gizli" style="margin-top:18px;padding:12px 22px;border:0;border-radius:24px;background:linear-gradient(135deg,var(--mavi),var(--lila));color:var(--murekkep);font:inherit;font-weight:650">&#x1F4F7; QR okut</button>
   </div>
 </div>
 <header id="ust">
-  <div><div id="ad">Rüzgar</div><div id="durum"><i id="nokta"></i><span id="durumYazi">bağlanıyor…</span></div></div>
+  <div><div id="ad">R&#xFC;zgar</div><div id="durum"><i id="nokta"></i><span id="durumYazi">ba&#x11F;lan&#x131;yor&#x2026;</span></div></div>
   <div id="ajanlar"></div>
+  <button id="balonDugme" class="dgm gizli" style="width:34px;height:34px;font-size:15px" title="Y&#xFC;zen balon">&#x1FAE7;</button>
 </header>
 <div id="sahne"><canvas id="sahneTuval"></canvas></div>
 <main id="akis" aria-live="polite"></main>
 <div id="ekler"></div>
 <form id="form">
-  <label class="dgm" title="Fotoğraf çek">📷<input id="kamera" type="file" accept="image/*" capture="environment" hidden></label>
-  <label class="dgm" title="Galeriden seç">🖼<input id="galeri" type="file" accept="image/*" multiple hidden></label>
-  <textarea id="yazi" rows="1" placeholder="Rüzgar'a yaz…" title="Klavyedeki 🎤 ile konuşarak da yazabilirsin"></textarea>
-  <button id="gonder" type="submit" aria-label="Gönder">↑</button>
+  <label class="dgm" title="Foto&#x11F;raf &#xE7;ek">&#x1F4F7;<input id="kamera" type="file" accept="image/*" capture="environment" hidden></label>
+  <label class="dgm" title="Galeriden se&#xE7;">&#x1F5BC;<input id="galeri" type="file" accept="image/*" multiple hidden></label>
+  <textarea id="yazi" rows="1" placeholder="R&#xFC;zgar'a yaz&#x2026;" title="Klavyedeki &#x1F3A4; ile konu&#x15F;arak da yazabilirsin"></textarea>
+  <button id="gonder" type="submit" aria-label="G&#xF6;nder">&#x2191;</button>
 </form>
 <script>
 "use strict";
@@ -80,7 +82,7 @@ const $ = s => document.querySelector(s);
 const sakla = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} };
 const al = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d } catch (e) { return d } };
 
-// ---------- eşleştirme: #e=<base64url(json)> (sunucuya hiç gitmez) ----------
+// ---------- e\u015fle\u015ftirme: #e=<base64url(json)> (sunucuya hi\u00e7 gitmez) ----------
 if (location.hash.startsWith("#e=")) {
   try {
     const b = location.hash.slice(3).replace(/-/g, "+").replace(/_/g, "/");
@@ -91,7 +93,7 @@ if (location.hash.startsWith("#e=")) {
 }
 const AYAR = al("ayar", null);
 
-// ---------- şifreleme: AES-256-GCM, Mac'teki CryptoKit ile aynı biçim (nonce|şifreli|etiket) ----------
+// ---------- \u015fifreleme: AES-256-GCM, Mac'teki CryptoKit ile ayn\u0131 bi\u00e7im (nonce|\u015fifreli|etiket) ----------
 let anahtar = null;
 const b64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s) };
 const unb64 = s => Uint8Array.from(atob(s.trim()), c => c.charCodeAt(0));
@@ -116,15 +118,15 @@ async function gonderMac(o) {
 async function dosyaYukle(bayt) {
   const govde = await sifrele(bayt);
   const r = await fetch(`${SUNUCU}/${AYAR.e}`, { method: "PUT", body: govde, headers: { Filename: "f.bin" } });
-  if (!r.ok) throw new Error("yükleme " + r.status);
+  if (!r.ok) throw new Error("y\u00fckleme " + r.status);
   return (await r.json()).attachment.url;
 }
 const gorulen = new Set();
 function dinle() {
   const since = al("sonOlay", null) || "12h";
   const es = new EventSource(`${SUNUCU}/${AYAR.c}/sse?since=${encodeURIComponent(since)}`);
-  es.onopen = () => durumYaz("bağlı · Mac'teki Rüzgar'la aynı sohbet", "#5bd68a");
-  es.onerror = () => durumYaz("bağlantı bekleniyor…", "#f5cc59");
+  es.onopen = () => durumYaz("ba\u011fl\u0131 \u00b7 Mac'teki R\u00fczgar'la ayn\u0131 sohbet", "#5bd68a");
+  es.onerror = () => durumYaz("ba\u011flant\u0131 bekleniyor\u2026", "#f5cc59");
   es.onmessage = async ev => {
     try {
       const o = JSON.parse(ev.data); if (o.event !== "message") return; sakla("sonOlay", o.id);
@@ -133,7 +135,7 @@ function dinle() {
       const m = JSON.parse(dec.decode(await coz(yuk)));
       if (!m.mid || gorulen.has(m.mid)) return; gorulen.add(m.mid);
       isle(m);
-    } catch (e) { /* başka anahtarla şifreli / bozuk: yok say */ }
+    } catch (e) { /* ba\u015fka anahtarla \u015fifreli / bozuk: yok say */ }
   };
 }
 
@@ -142,9 +144,9 @@ let gecmis = al("gecmis", []);   // {ben, metin, kaynak?, hata?, foto?}
 let bekleyen = null;
 function cizMesaj(m) {
   const d = document.createElement("div"); d.className = "m " + (m.ben ? "ben" : "o") + (m.hata ? " hata" : "");
-  if (m.kaynak === "mac" && m.ben) { const k = document.createElement("div"); k.className = "kaynak"; k.textContent = "💻 Mac'ten"; d.append(k) }
+  if (m.kaynak === "mac" && m.ben) { const k = document.createElement("div"); k.className = "kaynak"; k.textContent = "\u{1f4bb} Mac'ten"; d.append(k) }
   const t = document.createElement("div"); t.textContent = m.metin; d.append(t);
-  (m.fotolar || []).forEach(f => { const i = new Image(); i.src = f; i.alt = "gönderilen fotoğraf"; d.append(i) });
+  (m.fotolar || []).forEach(f => { const i = new Image(); i.src = f; i.alt = "g\u00f6nderilen foto\u011fraf"; d.append(i) });
   $("#akis").append(d); return d;
 }
 function hepsiniCiz() { $("#akis").textContent = ""; gecmis.forEach(cizMesaj); asagi() }
@@ -157,8 +159,8 @@ function yaziyorGoster(v) {
 function isle(m) {
   if (m.tip === "cevap") {
     if (m.kaynak === "mac" && m.soru) ekle({ ben: true, metin: m.soru, kaynak: "mac" });
-    yaziyorGoster(false); ekle({ ben: false, metin: m.metin || "…", hata: !!m.hata });
-    bekleyen = null; mod(m.hata ? "sad" : "happy"); setTimeout(() => mod("idle"), 2400); durumYaz("hazır", "#5bd68a");
+    yaziyorGoster(false); ekle({ ben: false, metin: m.metin || "\u2026", hata: !!m.hata });
+    bekleyen = null; mod(m.hata ? "sad" : "happy"); setTimeout(() => mod("idle"), 2400); durumYaz("haz\u0131r", "#5bd68a");
   } else if (m.tip === "durum") { durumYaz(m.metin || "", "#f5cc59"); if (m.mod === "busy") { mod("busy"); yaziyorGoster(true) } }
   else if (m.tip === "gecmis") {
     if (Array.isArray(m.mesajlar) && m.mesajlar.length) { gecmis = m.mesajlar.map(x => ({ ben: !!x.ben, metin: String(x.metin || "") })); sakla("gecmis", gecmis); hepsiniCiz() }
@@ -167,12 +169,12 @@ function isle(m) {
     if (m.robot && m.robot.pal && Array.isArray(m.robot.idle) && m.robot.idle.length) { sakla("robot", m.robot); ROBOT = m.robot } if (m.ajanlar && m.ajanlar.pal && m.ajanlar.ajanlar) { sakla("ajan", m.ajanlar); AJAN = m.ajanlar; ajanCiz() }
     sakla("karakterTarih", Date.now()); if (m.ayar) ayarUygula(m.ayar);
   } else if (m.tip === "ayar" && m.ayar) ayarUygula(m.ayar);
-  else if (m.tip === "pong") durumYaz("bağlı · Mac uyanık", "#5bd68a");
+  else if (m.tip === "pong") durumYaz("ba\u011fl\u0131 \u00b7 Mac uyan\u0131k", "#5bd68a");
 }
 function ayarUygula(a) { if (a.ad) { $("#ad").textContent = a.ad; document.title = a.ad; sakla("ad", a.ad) } }
 function durumYaz(t, renk) { $("#durumYazi").textContent = t; $("#nokta").style.background = renk }
 
-// ---------- fotoğraflar (telefonda görme) ----------
+// ---------- foto\u011fraflar (telefonda g\u00f6rme) ----------
 let fotolar = [];   // {blob, url}
 async function kucult(dosya) {
   const bmp = await createImageBitmap(dosya); const o = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
@@ -186,7 +188,7 @@ async function fotoEkle(liste) {
 function ekleriCiz() {
   $("#ekler").textContent = "";
   fotolar.forEach((f, i) => { const d = document.createElement("div"); const im = new Image(); im.src = f.url; im.alt = "";
-    const x = document.createElement("button"); x.type = "button"; x.textContent = "✕"; x.ariaLabel = "kaldır"; x.onclick = () => { fotolar.splice(i, 1); ekleriCiz() };
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "\u2715"; x.ariaLabel = "kald\u0131r"; x.onclick = () => { fotolar.splice(i, 1); ekleriCiz() };
     d.append(im, x); $("#ekler").append(d) });
 }
 $("#kamera").onchange = e => { fotoEkle(e.target.files); e.target.value = "" };
@@ -195,19 +197,19 @@ $("#galeri").onchange = e => { fotoEkle(e.target.files); e.target.value = "" };
 $("#yazi").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = Math.min(140, e.target.scrollHeight) + "px" });
 $("#form").onsubmit = async e => {
   e.preventDefault(); const metin = $("#yazi").value.trim(); if (!metin && !fotolar.length) return;
-  $("#gonder").disabled = true; durumYaz("gönderiyorum…", "#f5cc59");
+  $("#gonder").disabled = true; durumYaz("g\u00f6nderiyorum\u2026", "#f5cc59");
   try {
     const ekler = [];
     for (const [i, f] of fotolar.entries()) ekler.push({ url: await dosyaYukle(new Uint8Array(await f.blob.arrayBuffer())), ad: `foto${i + 1}.jpg` });
     await gonderMac({ tip: "mesaj", metin, ekler });
-    ekle({ ben: true, metin: metin || "(fotoğraf)", fotolar: fotolar.map(f => f.url) });
+    ekle({ ben: true, metin: metin || "(foto\u011fraf)", fotolar: fotolar.map(f => f.url) });
     $("#yazi").value = ""; $("#yazi").style.height = "auto"; fotolar = []; ekleriCiz();
-    bekleyen = true; mod("busy"); yaziyorGoster(true); durumYaz("Mac'e gitti, bekliyorum…", "#f5cc59");
-  } catch (err) { durumYaz("gönderilemedi: internet?", "#f5a6bd") }
+    bekleyen = true; mod("busy"); yaziyorGoster(true); durumYaz("Mac'e gitti, bekliyorum\u2026", "#f5cc59");
+  } catch (err) { durumYaz("g\u00f6nderilemedi: internet?", "#f5a6bd") }
   $("#gonder").disabled = false;
 };
 
-// ---------- piksel karakter + sahne (Mac'teki balonun aynısı) ----------
+// ---------- piksel karakter + sahne (Mac'teki balonun ayn\u0131s\u0131) ----------
 let ROBOT = al("robot", VARSAYILAN_ROBOT), AJAN = al("ajan", VARSAYILAN_AJAN), durumMod = "idle", kare = 0;
 const renk = p => p ? `rgb(${p[0]},${p[1]},${p[2]})` : null;
 function duvarRengi(gx, gy, wt) {
@@ -222,16 +224,16 @@ function sahneCiz() {
   const W = Math.floor(r.width / px), H = Math.floor(r.height / px); if (c.width !== W) { c.width = W; c.height = H }
   const x = c.getContext("2d"); x.clearRect(0, 0, W, H);
   const duvarUst = H - 7, pal = ROBOT ? ROBOT.pal : {};
-  // yıldızlar
+  // y\u0131ld\u0131zlar
   for (let i = 0; i < 18; i++) { const sx = (i * 37 + 11) % W, sy = (i * 17 + 3) % Math.max(1, duvarUst - 2);
     if ((i + Math.floor(Date.now() / 900)) % 5) { x.fillStyle = i % 3 ? "#cfd8ff" : "#f5cc59"; x.fillRect(sx, sy, 1, 1) } }
   // duvar
   for (let gy = duvarUst; gy < H; gy++) for (let gx = 0; gx < W; gx++) { const k = renk(pal[duvarRengi(gx, gy - duvarUst + 23, 23)]); if (k) { x.fillStyle = k; x.fillRect(gx, gy, 1, 1) } }
-  // sarmaşık
+  // sarma\u015f\u0131k
   for (let v = 0; v < 5; v++) { const vx = 6 + v * 19, ln = 2 + (v * 7) % 4;
     for (let k = 0; k < ln; k++) { x.fillStyle = renk(pal[k % 3 ? "L" : "l"]) || "#6b9"; x.fillRect(vx + (k % 2), duvarUst + 1 + k, 1, 1) }
     x.fillStyle = renk(pal.F) || "#f9b"; x.fillRect(vx, duvarUst + 1 + ln, 1, 1) }
-  // robot (duvar satırı 23 sahnedeki duvarın üstüne)
+  // robot (duvar sat\u0131r\u0131 23 sahnedeki duvar\u0131n \u00fcst\u00fcne)
   if (ROBOT) { const set = ROBOT[durumMod] || ROBOT.idle, f = set[kare % set.length], ox = W - ROBOT.w - 4, oy = duvarUst - 23;
     f.forEach((row, yy) => [...row].forEach((ch, xx) => { const k = renk(pal[ch]); if (k) { x.fillStyle = k; x.fillRect(ox + xx, oy + yy, 1, 1) } })) }
 }
@@ -248,11 +250,21 @@ function ajanCiz() {
 }
 setInterval(() => { kare++; if (!AYAR) tekCiz($("#eslesRobot"), "idle"); else sahneCiz() }, 180);
 
-// ---------- başlat ----------
+// ---------- Android uygulamasi (APK) icindeyse ----------
+const ANDROID = window.RuzgarAndroid || null;
+if (ANDROID) {
+  const q = $("#qrDugme"); q.classList.remove("gizli"); q.onclick = () => ANDROID.qrOkut();
+  const b = $("#balonDugme"); b.classList.remove("gizli");
+  const boya = () => { const ac = ANDROID.balonDurum(); b.style.opacity = ac ? 1 : .45; b.title = ac ? "Y\u00fczen balon a\u00e7\u0131k (dokun: kapat)" : "Y\u00fczen balon kapal\u0131 (dokun: a\u00e7)" };
+  b.onclick = () => { ANDROID.balon(!ANDROID.balonDurum()); setTimeout(boya, 400) }; boya();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) boya() });
+}
+
+// ---------- ba\u015flat ----------
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 (async () => {
   if (!AYAR) { ["#ust", "#sahne", "#akis", "#ekler", "#form"].forEach(s => $(s).classList.add("gizli")); $("#esles").classList.remove("gizli"); return }
-  ayarUygula({ ad: al("ad", "Rüzgar") }); ajanCiz(); hepsiniCiz();
+  ayarUygula({ ad: al("ad", "R\u00fczgar") }); ajanCiz(); hepsiniCiz();
   await anahtarHazirla(); dinle();
   try {
     await gonderMac({ tip: "ping" }); await gonderMac({ tip: "gecmis" });
