@@ -1,0 +1,23 @@
+{
+ "name": "Rüzgar",
+ "short_name": "Rüzgar",
+ "lang": "tr",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#14131f",
+ "theme_color": "#211f3a",
+ "icons": [
+  {
+   "src": "ikon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "ikon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}
