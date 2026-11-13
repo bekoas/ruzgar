@@ -1,4 +1,4 @@
-const S="ruzgar-20261113110331",D=["./","index.html","manifest.webmanifest","ikon-192.png","ikon-512.png"];
+const S="ruzgar-20261113113846",D=["./","index.html","manifest.webmanifest","ikon-192.png","ikon-512.png"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(S).then(c=>c.addAll(D)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==S).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(u.origin!==location.origin)return;
