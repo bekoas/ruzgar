@@ -45,7 +45,7 @@ main{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column
 .eylem .tus .evet{background:linear-gradient(135deg,var(--mavi),var(--lila));color:var(--murekkep)}
 .eylem .tus .hayir{background:var(--kart);color:var(--soluk);border:1px solid var(--kenar)}
 #ekler button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#000a;color:#fff;font-size:13px}
-form{display:flex;align-items:flex-end;gap:8px;padding:10px max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left))}
+form{position:relative;display:flex;align-items:flex-end;gap:8px;padding:10px max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left))}
 .dgm{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--kenar);background:var(--kart);color:var(--soluk);display:grid;place-items:center;font-size:18px}
 textarea{flex:1;min-width:0;resize:none;max-height:140px;padding:10px 14px;border-radius:20px;border:1px solid var(--kenar);background:var(--kart);color:var(--yazi);font:inherit;outline:none}
 textarea:focus{border-color:rgba(120,191,255,.6)}
@@ -55,6 +55,16 @@ textarea:focus{border-color:rgba(120,191,255,.6)}
 #esles h1{font-size:22px;margin:.6em 0 .3em;text-wrap:balance}
 #esles p{color:var(--soluk);max-width:32ch;margin:0 auto}
 .gizli{display:none!important}
+#artiDugme{font-size:24px;font-weight:300;color:var(--yazi);line-height:1}
+#ekMenu{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:calc(100% - 4px);display:flex;flex-direction:column;min-width:220px;padding:6px;border-radius:16px;background:#221f38;border:1px solid var(--kenar);box-shadow:0 10px 30px rgba(0,0,0,.45);z-index:5}
+#ekMenu label{padding:12px 14px;border-radius:12px;font-size:15px;white-space:nowrap}
+#ekMenu label:active{background:var(--kart)}
+/* floating bubble panel (APK): compact, no scene, the native top bar has mic / eye / close */
+.mini header{padding:6px 14px 2px}
+.mini #ad,.mini #ajanlar,.mini #balonDugme,.mini #sahne,.mini #mikDugme{display:none!important}
+.mini main{padding:8px 12px;gap:10px}
+.mini form{padding:8px 10px 10px;gap:6px}
+.mini .m{max-width:90%}
 </style>
 </head>
 <body>
@@ -75,9 +85,12 @@ textarea:focus{border-color:rgba(120,191,255,.6)}
 <main id="akis" aria-live="polite"></main>
 <div id="ekler"></div>
 <form id="form">
-  <label class="dgm" title="Foto&#x11F;raf &#xE7;ek">&#x1F4F7;<input id="kamera" type="file" accept="image/*" capture="environment" hidden></label>
-  <label class="dgm" title="Galeriden se&#xE7;">&#x1F5BC;<input id="galeri" type="file" accept="image/*" multiple hidden></label>
-  <label class="dgm" title="Belge ekle (PDF, Word, ses, video...)">&#x1F4CE;<input id="belge" type="file" multiple hidden></label>
+  <button id="artiDugme" class="dgm" type="button" title="Ekle: foto&#x11F;raf, galeri, belge" aria-expanded="false">+</button>
+  <div id="ekMenu" class="gizli">
+    <label title="Foto&#x11F;raf &#xE7;ek">&#x1F4F7; Foto&#x11F;raf &#xE7;ek<input id="kamera" type="file" accept="image/*" capture="environment" hidden></label>
+    <label title="Galeriden se&#xE7;">&#x1F5BC; Galeriden se&#xE7;<input id="galeri" type="file" accept="image/*" multiple hidden></label>
+    <label title="Belge ekle">&#x1F4CE; Belge (PDF, Word, ses...)<input id="belge" type="file" multiple hidden></label>
+  </div>
   <textarea id="yazi" rows="1" placeholder="R&#xFC;zgar'a yaz&#x2026;" title="Klavyedeki &#x1F3A4; ile konu&#x15F;arak da yazabilirsin"></textarea>
   <button id="mikDugme" class="dgm gizli" type="button" title="Konu&#x15F;">&#x1F399;&#xFE0F;</button>
   <button id="gonder" type="submit" aria-label="G&#xF6;nder">&#x2191;</button>
@@ -215,6 +228,9 @@ function belgeEkle(liste) {
   ekleriCiz();
 }
 $("#belge").onchange = e => { belgeEkle(e.target.files); e.target.value = "" };
+const ekMenuAc = v => { $("#ekMenu").classList.toggle("gizli", !v); $("#artiDugme").setAttribute("aria-expanded", v) };
+$("#artiDugme").onclick = e => { e.stopPropagation(); ekMenuAc($("#ekMenu").classList.contains("gizli")) };
+document.addEventListener("click", e => { if (!e.target.closest("#ekMenu") || e.target.tagName === "INPUT") setTimeout(() => ekMenuAc(false), 0) });
 // Ba\u015fka uygulamadan "Payla\u015f \u2192 R\u00fczgar" ile gelen yaz\u0131 ve dosyalar (APK verir)
 window.paylasim = o => {
   if (o.metin) { $("#yazi").value = ($("#yazi").value ? $("#yazi").value + "\n" : "") + o.metin; $("#yazi").dispatchEvent(new Event("input")) }
@@ -282,6 +298,7 @@ setInterval(() => { kare++; if (!AYAR) tekCiz($("#eslesRobot"), "idle"); else sa
 
 // ---------- Android uygulamasi (APK) icindeyse ----------
 const ANDROID = window.RuzgarAndroid || null;
+if (ANDROID && ANDROID.mini && ANDROID.mini()) { document.documentElement.classList.add("mini"); $("#yazi").placeholder = "Yaz\u2026" }
 let sesliMod = false;
 // markdown/emoji temizle: sesli okunacak duz metin
 function sesleOkunur(t) { return String(t).replace(/```[\s\S]*?```/g, " kod blo\u011fu ").replace(/[*_#`>|~\[\]()]/g, " ").replace(/https?:\/\/\S+/g, " ba\u011flant\u0131 ").replace(/\s+/g, " ").trim().slice(0, 1200) }
