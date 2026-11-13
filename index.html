@@ -72,6 +72,7 @@ textarea:focus{border-color:rgba(120,191,255,.6)}
   <label class="dgm" title="Foto&#x11F;raf &#xE7;ek">&#x1F4F7;<input id="kamera" type="file" accept="image/*" capture="environment" hidden></label>
   <label class="dgm" title="Galeriden se&#xE7;">&#x1F5BC;<input id="galeri" type="file" accept="image/*" multiple hidden></label>
   <textarea id="yazi" rows="1" placeholder="R&#xFC;zgar'a yaz&#x2026;" title="Klavyedeki &#x1F3A4; ile konu&#x15F;arak da yazabilirsin"></textarea>
+  <button id="mikDugme" class="dgm gizli" type="button" title="Konu&#x15F;">&#x1F399;&#xFE0F;</button>
   <button id="gonder" type="submit" aria-label="G&#xF6;nder">&#x2191;</button>
 </form>
 <script>
@@ -160,6 +161,7 @@ function isle(m) {
   if (m.tip === "cevap") {
     if (m.kaynak === "mac" && m.soru) ekle({ ben: true, metin: m.soru, kaynak: "mac" });
     yaziyorGoster(false); ekle({ ben: false, metin: m.metin || "\u2026", hata: !!m.hata });
+    if (sesliMod && ANDROID && ANDROID.oku) { try { ANDROID.oku(sesleOkunur(m.metin || "")) } catch (e) {} sesliMod = false }
     bekleyen = null; mod(m.hata ? "sad" : "happy"); setTimeout(() => mod("idle"), 2400); durumYaz("haz\u0131r", "#5bd68a");
   } else if (m.tip === "durum") { durumYaz(m.metin || "", "#f5cc59"); if (m.mod === "busy") { mod("busy"); yaziyorGoster(true) } }
   else if (m.tip === "gecmis") {
@@ -252,6 +254,12 @@ setInterval(() => { kare++; if (!AYAR) tekCiz($("#eslesRobot"), "idle"); else sa
 
 // ---------- Android uygulamasi (APK) icindeyse ----------
 const ANDROID = window.RuzgarAndroid || null;
+let sesliMod = false;
+// markdown/emoji temizle: sesli okunacak duz metin
+function sesleOkunur(t) { return String(t).replace(/```[\s\S]*?```/g, " kod blo\u011fu ").replace(/[*_#`>|~\[\]()]/g, " ").replace(/https?:\/\/\S+/g, " ba\u011flant\u0131 ").replace(/\s+/g, " ").trim().slice(0, 1200) }
+// APK sesi yaziya cevirince buraya gelir: dogrudan gonder, cevabi sesli oku
+window.sesliGonder = t => { if (!t || !String(t).trim()) return; sesliMod = true; $("#yazi").value = String(t).trim(); $("#form").requestSubmit() };
+if (ANDROID && ANDROID.dinle) { const m = $("#mikDugme"); m.classList.remove("gizli"); m.onclick = () => ANDROID.dinle() }
 if (ANDROID) {
   const q = $("#qrDugme"); q.classList.remove("gizli"); q.onclick = () => ANDROID.qrOkut();
   const b = $("#balonDugme"); b.classList.remove("gizli");
